@@ -5,12 +5,27 @@ describe('Cidades - DeleteById', () => {
 
     it('Deletar cidade existente - StatusCode 204', async () => {
 
-        const idCidade = 1;
+        const res1 = await testServer
+            .post('/cidades')
+            .send({ nome: 'Caxias do sul' });
+
+        expect(res1.statusCode).toEqual(StatusCodes.CREATED);
+
+        const resApagada = await testServer
+            .delete(`/cidades/${res1.body}`)
+            .send();
+
+        expect(resApagada.statusCode).toEqual(StatusCodes.NO_CONTENT);
+    });
+
+    it('Tenta apagar registro que não existe', async () => {
 
         const res1 = await testServer
-            .delete(`/cidades/${idCidade}`);
-        
-        expect(res1.statusCode).toEqual(StatusCodes.NO_CONTENT);
+            .delete('/cidades/99999')
+            .send();
+
+        expect(res1.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+        expect(res1.body).toHaveProperty('errors.default');
     });
 
     it('Parâmentro enviado não é um número - StatusCode 400', async () => {
@@ -18,8 +33,9 @@ describe('Cidades - DeleteById', () => {
         const idCidade = 'teste';
 
         const res1 = await testServer
-            .delete(`/cidades/${idCidade}`);
-        
+            .delete(`/cidades/${idCidade}`)
+            .send();
+
         expect(res1.statusCode).toEqual(StatusCodes.BAD_REQUEST);
         expect(res1.body).toHaveProperty('errors.params.id');
     });
@@ -29,8 +45,9 @@ describe('Cidades - DeleteById', () => {
         const idCidade = 1.2;
 
         const res1 = await testServer
-            .delete(`/cidades/${idCidade}`);
-        
+            .delete(`/cidades/${idCidade}`)
+            .send();
+
         expect(res1.statusCode).toEqual(StatusCodes.BAD_REQUEST);
         expect(res1.body).toHaveProperty('errors.params.id');
     });
@@ -40,8 +57,9 @@ describe('Cidades - DeleteById', () => {
         const idCidade = 0;
 
         const res1 = await testServer
-            .delete(`/cidades/${idCidade}`);
-        
+            .delete(`/cidades/${idCidade}`)
+            .send();
+
         expect(res1.statusCode).toEqual(StatusCodes.BAD_REQUEST);
         expect(res1.body).toHaveProperty('errors.params.id');
     });

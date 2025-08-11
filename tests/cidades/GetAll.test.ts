@@ -6,9 +6,17 @@ describe('Cidades - DeleteById', () => {
     it('Request de todas as cidades - StatusCode 200', async () => {
 
         const res1 = await testServer
-            .get(`/cidades`);
-        
-        expect(res1.statusCode).toEqual(StatusCodes.OK);
-        expect(typeof res1.body).toEqual('object');
+            .post('/cidades')
+            .send({ nome: 'Caxias do sul' });
+
+        expect(res1.statusCode).toEqual(StatusCodes.CREATED);
+
+        const resBuscada = await testServer
+            .get('/cidades')
+            .send();
+
+        expect(Number(resBuscada.header['x-total-count'])).toBeGreaterThan(0);
+        expect(resBuscada.statusCode).toEqual(StatusCodes.OK);
+        expect(resBuscada.body.length).toBeGreaterThan(0);
     });
 });

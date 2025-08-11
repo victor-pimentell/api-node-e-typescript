@@ -5,13 +5,27 @@ describe('Cidades - Create', () => {
 
     it('Update cidade By id - StatusCode 200', async () => {
 
-        const idCidade = 1;
+        const res1 = await testServer
+            .post('/cidades')
+            .send({ nome: 'Caxias do sul' });
+
+        expect(res1.statusCode).toEqual(StatusCodes.CREATED);
+
+        const resAtualizada = await testServer
+            .put(`/cidades/${res1.body}`)
+            .send({ nome: 'Caxias' });
+
+        expect(resAtualizada.statusCode).toEqual(StatusCodes.NO_CONTENT);
+    });
+
+    it('Tenta atualizar registro que não existe', async () => {
 
         const res1 = await testServer
-            .put(`/cidades/${idCidade}`).send({ nome: 'Paripinga'});
-        
-        expect(res1.statusCode).toEqual(StatusCodes.OK);
-        expect(res1.body).toEqual({"nome": "Paripiranga"});
+            .put('/cidades/99999')
+            .send({ nome: 'Caxias' });
+
+        expect(res1.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+        expect(res1.body).toHaveProperty('errors.default');
     });
 
     it('Parâmentro enviado não é um número - StatusCode 400', async () => {
@@ -19,8 +33,8 @@ describe('Cidades - Create', () => {
         const idCidade = 'teste';
 
         const res1 = await testServer
-            .put(`/cidades/${idCidade}`).send({ nome: 'Paripinga'});
-        
+            .put(`/cidades/${idCidade}`).send({ nome: 'Paripinga' });
+
         expect(res1.statusCode).toEqual(StatusCodes.BAD_REQUEST);
         expect(res1.body).toHaveProperty('errors.params.id');
     });
@@ -30,8 +44,8 @@ describe('Cidades - Create', () => {
         const idCidade = 1.2;
 
         const res1 = await testServer
-            .put(`/cidades/${idCidade}`).send({ nome: 'Paripinga'});
-        
+            .put(`/cidades/${idCidade}`).send({ nome: 'Paripinga' });
+
         expect(res1.statusCode).toEqual(StatusCodes.BAD_REQUEST);
         expect(res1.body).toHaveProperty('errors.params.id');
     });
@@ -42,7 +56,7 @@ describe('Cidades - Create', () => {
 
         const res1 = await testServer
             .put(`/cidades/${idCidade}`);
-        
+
         expect(res1.statusCode).toEqual(StatusCodes.BAD_REQUEST);
         expect(res1.body).toHaveProperty('errors.params.id');
     });
