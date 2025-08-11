@@ -23,5 +23,5 @@ export const getAll = async (req: Request<{}, {}, {}, IQueryProps>, res: Respons
     console.log(req.query);
 
 
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send('Não implementado!');
+    return res.status(StatusCodes.OK).json( ["Nova York", "Paris", "Tóquio", "Londres"] );
 };
